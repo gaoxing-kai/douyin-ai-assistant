@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 抖音直播间智能AI助手一键部署脚本
-# 适用于Ubuntu 20.04+ 系统
+# 适用于火山引擎Linux系统
 
 echo "抖音直播间智能AI助手一键部署脚本"
 echo "--------------------------------"
@@ -16,9 +16,9 @@ fi
 echo "安装系统依赖..."
 apt update
 apt upgrade -y
-apt install -y python3 python3-pip python3-venv git nginx build-essential libssl-dev libffi-dev python3-dev
+apt install -y python3 python3-pip python3-venv git nginx
 
-# 安装Node.js
+# 安装Node.js（用于构建前端）
 curl -sL https://deb.nodesource.com/setup_16.x | bash -
 apt install -y nodejs
 
@@ -38,93 +38,48 @@ source venv/bin/activate
 # 安装Python依赖
 echo "安装Python依赖..."
 pip install --upgrade pip
-pip install wheel
 pip install -r requirements.txt
-
-# 安装关键依赖
-echo "安装关键依赖..."
-pip install zope.event zope.interface
-
-# 创建.env配置文件
-echo "创建.env配置文件..."
-cat > .env <<EOL
-SECRET_KEY=$(openssl rand -hex 32)
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-BAIDU_APP_ID=your_baidu_app_id
-BAIDU_API_KEY=your_baidu_api_key
-BAIDU_SECRET_KEY=your_baidu_secret_key
-DB_TYPE=sqlite
-EOL
 
 # 安装前端依赖
 echo "安装前端依赖..."
 cd static
 npm install
+
+# 构建前端（如果需要）
+echo "构建前端资源..."
+npm run build
 cd ..
 
 # 初始化数据库
 echo "初始化数据库..."
-source venv/bin/activate
-python -c "from app import db, app; with app.app_context(): db.create_all()"
-
-# 创建管理员用户
-echo "创建管理员用户..."
-python -c "from app import db, User, app; \
-with app.app_context(): \
-    if not User.query.filter_by(username='admin').first(): \
-        admin = User(username='admin', password='admin', is_admin=True); \
-        db.session.add(admin); \
-        db.session.commit(); \
-        print('管理员用户已创建')"
+flask db upgrade
 
 # 配置Nginx
 echo "配置Nginx..."
 cat > /etc/nginx/sites-available/douyin-ai-assistant <<EOL
 server {
     listen 80;
-    server_name _;
+    server_name your-domain.com;
     
-    # 静态文件服务
-    location /static {
-        alias /opt/douyin-ai-assistant/static;
-        expires 30d;
-    }
-    
-    # WebSocket支持
-    location /socket.io {
-        proxy_pass http://127.0.0.1:5000/socket.io;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    }
-    
-    # 主应用代理
     location / {
         proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        # 增加超时时间
-        proxy_connect_timeout 600;
-        proxy_send_timeout 600;
-        proxy_read_timeout 600;
-        send_timeout 600;
     }
     
-    # 错误处理
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-        internal;
+    location /socket.io {
+        proxy_pass http://127.0.0.1:5000/socket.io;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
     }
     
-    access_log /var/log/nginx/douyin-access.log;
-    error_log /var/log/nginx/douyin-error.log;
+    location /static {
+        alias /opt/douyin-ai-assistant/static;
+    }
 }
 EOL
 
@@ -151,18 +106,7 @@ User=root
 Group=root
 WorkingDirectory=/opt/douyin-ai-assistant
 Environment="PATH=/opt/douyin-ai-assistant/venv/bin"
-EnvironmentFile=/opt/douyin-ai-assistant/.env
-ExecStartPre=/bin/bash -c 'source /opt/douyin-ai-assistant/venv/bin/activate && pip install -r requirements.txt'
-ExecStart=/opt/douyin-ai-assistant/venv/bin/gunicorn -w 4 -k "eventlet" -b 127.0.0.1:5000 app:app
-
-# 重启策略
-Restart=always
-RestartSec=5
-StartLimitInterval=0
-
-# 日志配置
-StandardOutput=file:/var/log/douyin-app.log
-StandardError=file:/var/log/douyin-error.log
+ExecStart=/opt/douyin-ai-assistant/venv/bin/gunicorn -w 4 -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -b 127.0.0.1:5000 app:app
 
 [Install]
 WantedBy=multi-user.target
@@ -172,21 +116,12 @@ systemctl daemon-reload
 systemctl enable douyin-ai-assistant
 systemctl start douyin-ai-assistant
 
-# 创建日志文件
-touch /var/log/douyin-app.log
-touch /var/log/douyin-error.log
-chown root:root /var/log/douyin-*.log
-chmod 644 /var/log/douyin-*.log
-
 # 安装完成
 echo "安装完成！"
 echo "--------------------------------"
-echo "访问地址: http://$(curl -s ifconfig.me)"
+echo "访问地址: http://your-domain.com"
 echo "管理员账号: admin"
 echo "管理员密码: admin"
 echo ""
 echo "请登录后立即修改管理员密码"
-echo "--------------------------------"
-echo "应用日志: /var/log/douyin-app.log"
-echo "错误日志: /var/log/douyin-error.log"
 echo "--------------------------------"
