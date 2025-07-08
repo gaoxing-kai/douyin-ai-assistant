@@ -7,7 +7,7 @@ Flask-Migrate==4.0.5  # 基于Alembic的Flask数据库迁移工具
 
 # 第三方服务依赖
 requests==2.31.0              # HTTP请求（调用AI API）
-baidu-aip==4.16.14            # 百度语音合成SDK
+baidu-aip==4.16.13            # 百度语音合成SDK
 python-dotenv==1.0.0          # 加载.env环境变量
 
 # 部署与性能
