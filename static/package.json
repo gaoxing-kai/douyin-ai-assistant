@@ -1,0 +1,8 @@
+{
+  "name": "douyin-ai-assistant-frontend",
+  "version": "1.0.0",
+  "description": "抖音直播间智能AI助手前端",
+  "dependencies": {
+    "socket.io-client": "^4.0.1"
+  }
+}

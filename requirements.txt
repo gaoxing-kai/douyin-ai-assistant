@@ -27,3 +27,4 @@ torch==2.0.1
 ffmpeg-python==0.2.0
 uWSGI==2.0.21
 greenlet==2.0.2
+zope.event==4.6
