@@ -1,24 +1,24 @@
 # Flask 核心框架
 Flask==2.3.3
-Flask-SocketIO==5.3.5        # WebSocket实时通信
-Flask-SQLAlchemy==3.1.1       # ORM数据库操作
-Flask-Session==0.5.0         # 会话管理
-Flask-Migrate==4.0.5  # 基于Alembic的Flask数据库迁移工具
+Flask-SocketIO==5.3.5
+Flask-SQLAlchemy==3.1.1
+Flask-Session==0.5.0
+Flask-Migrate==4.0.5  # 数据库迁移工具
 
 # 第三方服务依赖
-requests==2.31.0              # HTTP请求（调用AI API）
-baidu-aip==4.16.13            # 百度语音合成SDK
-python-dotenv==1.0.0          # 加载.env环境变量
+requests==2.31.0
+baidu-aip==4.16.13  # 修正为最新可用版本
+python-dotenv==1.0.0
 
 # 部署与性能
-gunicorn==21.2.0              # WSGI服务器（生产环境部署）
-gevent-websocket==0.10.1      # WebSocket支持（配合gunicorn）
-eventlet==0.33.3              # 异步IO支持（提升Socket性能）
+gunicorn==21.2.0
+gevent-websocket==0.10.1
+eventlet==0.33.3
 
 # 数据库扩展（按需安装）
-pymysql==1.1.0                # MySQL连接驱动（若使用MySQL）
-psycopg2-binary==2.9.9        # PostgreSQL连接驱动（若使用PostgreSQL）
+pymysql==1.1.0
+psycopg2-binary==2.9.9
 
 # 工具类
-python-dateutil==2.8.2        # 日期时间处理
-cryptography==42.0.5          # 加密工具（增强安全性）
+python-dateutil==2.8.2
+cryptography==42.0.5
