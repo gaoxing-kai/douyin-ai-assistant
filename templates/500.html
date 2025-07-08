@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-header">
+        <h1><i class="fas fa-exclamation-triangle"></i> 500 - 服务器内部错误</h1>
+    </div>
+    
+    <div class="error-card">
+        <div class="error-icon">
+            <i class="fas fa-server"></i>
+        </div>
+        
+        <div class="error-message">
+            <p>抱歉，服务器在处理您的请求时遇到了问题。</p>
+            <p>我们的技术团队已收到通知，正在处理此问题。</p>
+            
+            <div class="error-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+                <button id="show-details" class="btn btn-secondary">
+                    <i class="fas fa-code"></i> 显示错误详情
+                </button>
+            </div>
+            
+            <div class="error-details" id="error-details" style="display: none;">
+                <h3>错误详情</h3>
+                <pre>{{ error }}</pre>
+                
+                <div class="note">
+                    <i class="fas fa-info-circle"></i> 
+                    请将此信息提供给技术支持人员以便快速解决问题
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('show-details').addEventListener('click', function() {
+    const details = document.getElementById('error-details');
+    if (details.style.display === 'none') {
+        details.style.display = 'block';
+        this.innerHTML = '<i class="fas fa-eye-slash"></i> 隐藏详情';
+    } else {
+        details.style.display = 'none';
+        this.innerHTML = '<i class="fas fa-code"></i> 显示错误详情';
+    }
+});
+</script>
+{% endblock %}
