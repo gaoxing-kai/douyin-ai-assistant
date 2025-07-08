@@ -11,7 +11,7 @@
     "watch": "watch 'npm run build' css js"
   },
   "dependencies": {
-    "socket.io-client": "4.0.1"  // 与后端Flask-SocketIO依赖的socket.io版本严格匹配
+    "socket.io-client": "4.0.1"
   },
   "devDependencies": {
     "clean-css-cli": "^5.6.0",
