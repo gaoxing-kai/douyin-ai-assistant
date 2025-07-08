@@ -546,15 +546,23 @@ def internal_server_error(e):
     return render_template('errors/500.html'), 500
 
 # ------------------------------
-# 应用初始化
+# 应用初始化（替换before_first_request）
 # ------------------------------
-@app.before_first_request
-def before_first_request():
-    log_dir = os.path.dirname(current_app.config['LOG_FILE'])
+def initialize_app():
+    """应用启动时初始化（仅执行一次）"""
+    # 创建日志目录
+    log_dir = os.path.dirname(app.config['LOG_FILE'])
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
     log("应用启动初始化完成")
 
+# 在应用上下文初始化时执行
+with app.app_context():
+    initialize_app()
+
+# ------------------------------
+# 启动应用
+# ------------------------------
 if __name__ == '__main__':
     debug_mode = app.config['DEBUG']
     log(f"应用启动（环境: {'开发' if debug_mode else '生产'}）")
@@ -564,5 +572,5 @@ if __name__ == '__main__':
         host='0.0.0.0',
         port=5000,
         debug=debug_mode,
-        use_reloader=debug_mode
+        use_reloader=debug_mode  # 开发模式启用自动重载
     )
