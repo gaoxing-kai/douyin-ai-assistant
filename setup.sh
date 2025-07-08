@@ -28,7 +28,7 @@ cd /opt/douyin-ai-assistant
 
 # 克隆项目
 echo "克隆项目代码..."
-git clone https://github.com/your-repo/douyin-ai-assistant.git .
+git clone https://github.com/gaoxing-kai/douyin-ai-assistant.git .
 
 # 创建虚拟环境
 echo "创建Python虚拟环境..."
