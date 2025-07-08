@@ -20,7 +20,7 @@ read -p "请设置管理员初始密码: " ADMIN_PWD
 
 # 变量定义
 PROJECT_DIR="/opt/douyin-ai-assistant"
-GIT_REPO="https://github.com/your-repo/douyin-ai-assistant.git"  # 替换为实际仓库
+GIT_REPO="https://github.com/gaoxing-kai/douyin-ai-assistant.git"  # 替换为实际仓库
 ENV_FILE="$PROJECT_DIR/.env"
 
 # 显示信息
