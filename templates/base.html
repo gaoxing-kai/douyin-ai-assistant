@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抖音直播间AI助手 - {{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边导航 -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fab fa-tiktok"></i>
+                <span>AI直播间助手</span>
+            </div>
+            <ul class="nav">
+                <li class="{{ 'active' if active_page == 'dashboard' }}">
+                    <a href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-home"></i>
+                        <span>控制面板</span>
+                    </a>
+                </li>
+                <li class="{{ 'active' if active_page == 'settings' }}">
+                    <a href="{{ url_for('settings') }}">
+                        <i class="fas fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+                {% if session.get('is_admin') %}
+                <li class="{{ 'active' if active_page == 'users' }}">
+                    <a href="{{ url_for('users') }}">
+                        <i class="fas fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="{{ 'active' if active_page == 'keys' }}">
+                    <a href="{{ url_for('keys') }}">
+                        <i class="fas fa-key"></i>
+                        <span>卡密管理</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 顶部导航 -->
+            <div class="topbar">
+                <div class="search-box">
+                    <input type="text" placeholder="搜索...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="user-info">
+                    <span>{{ session.get('username', '游客') }}</span>
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="dropdown">
+                        <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> 设置</a>
+                        <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> 退出</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 内容区 -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

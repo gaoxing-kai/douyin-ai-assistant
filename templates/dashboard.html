@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% set active_page = "dashboard" %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="header">
+        <h1><i class="fas fa-broadcast-tower"></i> 直播间控制面板</h1>
+        <div class="actions">
+            <button id="start-live" class="btn btn-success">
+                <i class="fas fa-play"></i> 启动直播间
+            </button>
+            <button id="stop-live" class="btn btn-danger" disabled>
+                <i class="fas fa-stop"></i> 停止直播间
+            </button>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="icon bg-blue">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="info">
+                <h3>评论总数</h3>
+                <p id="comment-count">0</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon bg-green">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="info">
+                <h3>AI回复数</h3>
+                <p id="reply-count">0</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon bg-purple">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="info">
+                <h3>语音播报</h3>
+                <p id="voice-count">0</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon bg-orange">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="info">
+                <h3>在线观众</h3>
+                <p id="viewer-count">0</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="live-container">
+        <div class="live-comments">
+            <h2><i class="fas fa-comment-dots"></i> 实时评论</h2>
+            <div class="comments-list" id="comments-list">
+                <!-- 评论会动态添加到这里 -->
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>直播间未启动，暂无评论</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="live-controls">
+            <h2><i class="fas fa-sliders-h"></i> 控制选项</h2>
+            <div class="control-group">
+                <label><i class="fas fa-volume-up"></i> 语音音量</label>
+                <input type="range" min="0" max="100" value="80" id="volume-control">
+            </div>
+            
+            <div class="control-group">
+                <label><i class="fas fa-bolt"></i> AI回复速度</label>
+                <select id="reply-speed">
+                    <option value="fast">快速回复 (1-3秒)</option>
+                    <option value="normal" selected>正常回复 (3-5秒)</option>
+                    <option value="slow">慢速回复 (5-10秒)</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label><i class="fas fa-filter"></i> 评论过滤</label>
+                <select id="comment-filter">
+                    <option value="all">显示所有评论</option>
+                    <option value="answered">仅显示已回复</option>
+                    <option value="unanswered">仅显示未回复</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <button id="test-voice" class="btn btn-secondary">
+                    <i class="fas fa-play-circle"></i> 测试语音
+                </button>
+                <button id="reset-stats" class="btn btn-warning">
+                    <i class="fas fa-redo"></i> 重置统计
+                </button>
+            </div>
+            
+            <div class="ai-response-preview">
+                <h3><i class="fas fa-robot"></i> 最新AI回复</h3>
+                <div class="preview-content" id="ai-preview">
+                    <p class="empty">暂无AI回复内容</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

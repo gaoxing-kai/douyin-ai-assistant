@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set active_page = "settings" %}
+
+{% block content %}
+<div class="settings">
+    <div class="header">
+        <h1><i class="fas fa-cog"></i> 系统设置</h1>
+        <button id="save-settings" class="btn btn-primary">
+            <i class="fas fa-save"></i> 保存设置
+        </button>
+    </div>
+    
+    <div class="settings-grid">
+        <div class="setting-card">
+            <h2><i class="fas fa-link"></i> 直播间设置</h2>
+            <div class="form-group">
+                <label>抖音直播间链接</label>
+                <input type="text" id="live-url" value="{{ setting.live_url or '' }}" placeholder="https://live.douyin.com/...">
+            </div>
+            <div class="form-group">
+                <label>直播间监控间隔 (秒)</label>
+                <input type="number" id="monitor-interval" value="5" min="1" max="60">
+            </div>
+        </div>
+        
+        <div class="setting-card">
+            <h2><i class="fas fa-robot"></i> AI设置</h2>
+            <div class="form-group">
+                <label>DeepSeek API密钥</label>
+                <input type="password" id="deepseek-key" value="sk-**********" placeholder="输入DeepSeek API密钥">
+            </div>
+            <div class="form-group">
+                <label>AI提示词</label>
+                <textarea id="ai-prompt" rows="5" placeholder="输入AI提示词...">{{ setting.prompt }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>AI回复模式</label>
+                <select id="ai-mode">
+                    <option value="normal">标准模式</option>
+                    <option value="professional">专业模式</option>
+                    <option value="friendly">亲切模式</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="setting-card">
+            <h2><i class="fas fa-microphone-alt"></i> 语音设置</h2>
+            <div class="form-group">
+                <label>百度语音API密钥</label>
+                <input type="password" id="baidu-voice-key" value="bk-**********" placeholder="输入百度语音API密钥">
+            </div>
+            <div class="form-group">
+                <label>语音音色</label>
+                <select id="voice-style">
+                    <option value="知性女声" {% if setting.voice_style == '知性女声' %}selected{% endif %}>知性女声</option>
+                    <option value="甜美女生" {% if setting.voice_style == '甜美女生' %}selected{% endif %}>甜美女生</option>
+                    <option value="成熟男声" {% if setting.voice_style == '成熟男声' %}selected{% endif %}>成熟男声</option>
+                    <option value="磁性男声" {% if setting.voice_style == '磁性男声' %}selected{% endif %}>磁性男声</option>
+                    <option value="可爱童声" {% if setting.voice_style == '可爱童声' %}selected{% endif %}>可爱童声</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>语速 (0-15)</label>
+                <input type="range" id="voice-speed" min="0" max="15" value="5">
+                <span id="speed-value">5</span>
+            </div>
+            <div class="form-group">
+                <label>音量 (0-15)</label>
+                <input type="range" id="voice-volume" min="0" max="15" value="5">
+                <span id="volume-value">5</span>
+            </div>
+        </div>
+        
+        <div class="setting-card">
+            <h2><i class="fas fa-shield-alt"></i> 安全设置</h2>
+            <div class="form-group">
+                <label>自动登出时间 (分钟)</label>
+                <input type="number" id="logout-time" value="30" min="1" max="240">
+            </div>
+            <div class="form-group">
+                <label>登录失败限制</label>
+                <input type="number" id="login-limit" value="5" min="1" max="20">
+            </div>
+            <div class="form-group">
+                <label>数据备份频率</label>
+                <select id="backup-frequency">
+                    <option value="daily">每天</option>
+                    <option value="weekly" selected>每周</option>
+                    <option value="monthly">每月</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
