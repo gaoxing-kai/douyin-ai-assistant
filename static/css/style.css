@@ -1,6 +1,6 @@
 :root {
     --primary: #8a2be2;
-    --primary-dark: #6a1cb9;
+    --primary-light: #a254f5;
     --secondary: #00c3ff;
     --dark: #121212;
     --dark-light: #1e1e1e;
@@ -10,39 +10,44 @@
     --danger: #ff3860;
     --success: #23d160;
     --warning: #ffdd57;
-    --info: #209cee;
+    --border-radius: 6px;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
     background-color: #0a0a0a;
     color: var(--light);
-    overflow-x: hidden;
+    line-height: 1.5;
 }
 
+/* 布局基础 */
 .app-container {
     display: flex;
     min-height: 100vh;
 }
 
-/* 侧边栏样式 */
 .sidebar {
     width: 250px;
     background-color: var(--dark);
-    color: white;
-    position: fixed;
     height: 100vh;
-    overflow-y: auto;
-    transition: all 0.3s;
-    z-index: 1000;
+    position: fixed;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    z-index: 10;
 }
 
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding-bottom: 30px;
+}
+
+/* 侧边栏 */
 .logo {
     padding: 20px 15px;
     display: flex;
@@ -87,20 +92,12 @@ body {
 }
 
 .nav li.active a {
-    background-color: var(--primary-dark);
+    background-color: var(--primary);
     color: white;
     border-left: 4px solid var(--secondary);
 }
 
-/* 主内容区 */
-.main-content {
-    flex: 1;
-    margin-left: 250px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
+/* 顶部栏 */
 .topbar {
     background-color: var(--dark-light);
     padding: 15px 25px;
@@ -154,16 +151,12 @@ body {
     justify-content: center;
 }
 
-.avatar i {
-    font-size: 18px;
-}
-
 .dropdown {
     position: absolute;
     top: 100%;
     right: 0;
     background-color: var(--dark-lighter);
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     box-shadow: 0 3px 10px rgba(0,0,0,0.3);
     width: 180px;
     display: none;
@@ -179,45 +172,39 @@ body {
 }
 
 .dropdown a:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary);
     color: white;
-}
-
-.dropdown a i {
-    margin-right: 8px;
-    width: 18px;
 }
 
 .user-info:hover .dropdown {
     display: block;
 }
 
-/* 内容区 */
+/* 内容区通用样式 */
 .content {
-    flex: 1;
     padding: 25px;
     background-color: #0f0f0f;
 }
 
-/* 卡片样式 */
-.dashboard .header {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
 }
 
-.dashboard .header h1 {
+.header h1 {
     font-size: 24px;
     display: flex;
     align-items: center;
 }
 
-.dashboard .header h1 i {
+.header h1 i {
     margin-right: 10px;
     color: var(--secondary);
 }
 
+/* 按钮样式 */
 .btn {
     padding: 8px 16px;
     border-radius: 4px;
@@ -239,7 +226,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--primary-light);
 }
 
 .btn-success {
@@ -262,7 +249,72 @@ body {
     color: white;
 }
 
-/* 统计卡片 */
+/* 登录/注册页 */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.auth-card {
+    background-color: var(--dark-light);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--secondary);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #222;
+    color: white;
+    border: 1px solid #333;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.error-msg {
+    color: var(--danger);
+    padding: 10px;
+    background-color: rgba(255, 56, 96, 0.1);
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-footer a {
+    color: var(--secondary);
+    text-decoration: none;
+}
+
+/* 控制面板样式 */
 .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -317,9 +369,8 @@ body {
 
 .stat-card .info h3 {
     font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 5px;
     color: #aaa;
+    margin-bottom: 5px;
 }
 
 .stat-card .info p {
@@ -327,14 +378,13 @@ body {
     font-weight: bold;
 }
 
-/* 直播间容器 */
 .live-container {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
 }
 
-.live-comments {
+.live-comments, .live-controls {
     background-color: var(--dark-light);
     border-radius: 8px;
     padding: 20px;
@@ -343,14 +393,14 @@ body {
     flex-direction: column;
 }
 
-.live-comments h2 {
+.live-comments h2, .live-controls h2 {
     margin-bottom: 15px;
     font-size: 18px;
     display: flex;
     align-items: center;
 }
 
-.live-comments h2 i {
+.live-comments h2 i, .live-controls h2 i {
     margin-right: 8px;
     color: var(--secondary);
 }
@@ -369,6 +419,12 @@ body {
     background-color: var(--dark-lighter);
     border-radius: 6px;
     border-left: 3px solid var(--primary);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .comment .header {
@@ -385,10 +441,6 @@ body {
 .comment .time {
     color: #777;
     font-size: 12px;
-}
-
-.comment .content {
-    line-height: 1.4;
 }
 
 .comment.ai-response {
@@ -415,25 +467,7 @@ body {
     margin-bottom: 15px;
 }
 
-.live-controls {
-    background-color: var(--dark-light);
-    border-radius: 8px;
-    padding: 20px;
-    height: 500px;
-}
-
-.live-controls h2 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-}
-
-.live-controls h2 i {
-    margin-right: 8px;
-    color: var(--secondary);
-}
-
+/* 控制区样式 */
 .control-group {
     margin-bottom: 20px;
 }
@@ -448,7 +482,6 @@ body {
 
 .control-group label i {
     margin-right: 8px;
-    width: 20px;
     color: #777;
 }
 
@@ -490,20 +523,7 @@ body {
     min-height: 100px;
 }
 
-.preview-content .empty {
-    color: #777;
-    text-align: center;
-    padding: 20px;
-}
-
 /* 设置页面样式 */
-.settings .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
 .settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -526,50 +546,19 @@ body {
 
 .setting-card h2 i {
     margin-right: 10px;
-    width: 24px;
     color: var(--primary);
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.form-group input[type="text"],
-.form-group input[type="password"],
-.form-group input[type="number"],
-.form-group textarea,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    background-color: #222;
-    color: white;
-    border: 1px solid #333;
-}
-
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-group input[type="range"] {
-    width: 100%;
-    margin-top: 5px;
-}
-
-/* 表格样式 */
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* 用户管理和卡密管理页面 */
+.table-container {
     background-color: var(--dark-light);
     border-radius: 8px;
     overflow: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
 table th, table td {
@@ -584,10 +573,6 @@ table th {
 
 table tr {
     border-bottom: 1px solid #333;
-}
-
-table tr:last-child {
-    border-bottom: none;
 }
 
 table tr:hover {
@@ -612,17 +597,7 @@ table tr:hover {
     color: #aaa;
 }
 
-.badge-warning {
-    background-color: rgba(255, 221, 87, 0.2);
-    color: #ffdd57;
-}
-
-.actions button {
-    margin-right: 5px;
-    padding: 5px 8px;
-}
-
-/* 模态框样式 */
+/* 模态框 */
 .modal {
     display: none;
     position: fixed;
@@ -631,9 +606,13 @@ table tr:hover {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.7);
-    z-index: 2000;
+    z-index: 1000;
     align-items: center;
     justify-content: center;
+}
+
+.modal.show {
+    display: flex;
 }
 
 .modal-content {
@@ -651,23 +630,10 @@ table tr:hover {
     align-items: center;
 }
 
-.modal-header h3 {
-    display: flex;
-    align-items: center;
-}
-
-.modal-header h3 i {
-    margin-right: 10px;
-}
-
 .modal-header .close {
-    font-size: 24px;
     cursor: pointer;
+    font-size: 20px;
     color: #aaa;
-}
-
-.modal-header .close:hover {
-    color: white;
 }
 
 .modal-body {
@@ -685,28 +651,12 @@ table tr:hover {
     margin-left: 10px;
 }
 
-/* 新卡密样式 */
-.new-keys {
-    margin-bottom: 30px;
-    background-color: var(--dark-light);
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.new-keys h3 {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-}
-
-.new-keys h3 i {
-    margin-right: 10px;
-}
-
+/* 卡密管理样式 */
 .key-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
+    margin-bottom: 20px;
 }
 
 .key-item {
@@ -725,16 +675,11 @@ table tr:hover {
     text-overflow: ellipsis;
 }
 
-.btn-copy {
-    background: none;
-    border: none;
-    color: #aaa;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-copy:hover {
-    color: var(--secondary);
+.new-keys {
+    margin-bottom: 30px;
+    background-color: var(--dark-light);
+    border-radius: 8px;
+    padding: 20px;
 }
 
 .note {
@@ -746,6 +691,36 @@ table tr:hover {
     font-size: 14px;
 }
 
-.note i {
-    margin-right: 8px;
+/* 响应式设计 */
+@media (max-width: 992px) {
+    .live-container {
+        grid-template-columns: 1fr;
+    }
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+    .sidebar .logo span, .nav li a span {
+        display: none;
+    }
+    .main-content {
+        margin-left: 60px;
+    }
+    .stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+    .search-box {
+        width: 200px;
+    }
 }

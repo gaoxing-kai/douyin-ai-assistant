@@ -1,127 +1,75 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
-# 加载环境变量
+# 加载环境变量（优先从.env文件读取）
 load_dotenv()
 
 class Config:
-    # 基础配置
-    SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key_here')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+    """基础配置类"""
+    # Flask核心配置
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev_secret_key_123')  # 生产环境必须更换
+    SESSION_COOKIE_SECURE = os.getenv('FLASK_ENV', 'production') == 'production'  # 生产环境启用HTTPS cookie
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)  # 会话有效期24小时
+
     # 数据库配置
-    DB_TYPE = os.getenv('DB_TYPE', 'sqlite')
-    
-    if DB_TYPE == 'mysql':
-        SQLALCHEMY_DATABASE_URI = (
-            f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}"
-            f"@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', '3306')}"
-            f"/{os.getenv('MYSQL_DATABASE')}"
-        )
-    elif DB_TYPE == 'postgres':
-        SQLALCHEMY_DATABASE_URI = (
-            f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}"
-            f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT', '5432')}"
-            f"/{os.getenv('POSTGRES_DB')}"
-        )
-    else:
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
-    
-    # WebSocket 配置
-    SOCKETIO_MESSAGE_QUEUE = os.getenv('SOCKETIO_MESSAGE_QUEUE', 'redis://localhost:6379/0')
-    
-    # DeepSeek AI 配置
-    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', 'your_deepseek_api_key')
-    DEEPSEEK_API_BASE = os.getenv('DEEPSEEK_API_BASE', 'https://api.deepseek.com/v1')
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        'DATABASE_URI', 
+        'sqlite:///site.db'  # 默认使用SQLite，生产环境建议更换为MySQL
+    )
+    SQLALCHEMY_TRACK_MODIFICATIONS = False  # 关闭修改跟踪，提升性能
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_recycle': 300,  # 连接池回收时间（秒）
+        'pool_pre_ping': True  # 连接前检查有效性
+    }
+
+    # 第三方API配置
+    # DeepSeek AI（评论分析）
+    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
+    DEEPSEEK_API_URL = os.getenv('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions')
     DEEPSEEK_MODEL = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
-    DEFAULT_PROMPT = os.getenv('DEFAULT_PROMPT', '你是一个专业的直播助手，请用简洁的语言回复观众的问题')
-    
-    # 百度语音配置
-    BAIDU_APP_ID = os.getenv('BAIDU_APP_ID', 'your_baidu_app_id')
-    BAIDU_API_KEY = os.getenv('BAIDU_API_KEY', 'your_baidu_api_key')
-    BAIDU_SECRET_KEY = os.getenv('BAIDU_SECRET_KEY', 'your_baidu_secret_key')
-    DEFAULT_VOICE_STYLE = os.getenv('DEFAULT_VOICE_STYLE', '知性女声')
-    
-    # 抖音配置
-    DOUYIN_API_BASE = os.getenv('DOUYIN_API_BASE', 'https://live.douyin.com')
-    DOUYIN_MONITOR_INTERVAL = int(os.getenv('DOUYIN_MONITOR_INTERVAL', '5'))  # 秒
-    
-    # 安全配置
-    LOGIN_FAILURE_LIMIT = int(os.getenv('LOGIN_FAILURE_LIMIT', '5'))
-    LOGIN_LOCK_TIME = int(os.getenv('LOGIN_LOCK_TIME', '300'))  # 秒
-    AUTO_LOGOUT_TIME = int(os.getenv('AUTO_LOGOUT_TIME', '30'))  # 分钟
-    
-    # 管理员配置
-    ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
-    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin')
-    
-    # 性能配置
-    WORKER_THREADS = int(os.getenv('WORKER_THREADS', '4'))
-    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', '16 * 1024 * 1024'))  # 16MB
-    
-    # 调试配置
-    DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
+
+    # 百度语音合成
+    BAIDU_APP_ID = os.getenv('BAIDU_APP_ID', '')
+    BAIDU_API_KEY = os.getenv('BAIDU_API_KEY', '')
+    BAIDU_SECRET_KEY = os.getenv('BAIDU_SECRET_KEY', '')
+    BAIDU_TTS_SPEED = int(os.getenv('BAIDU_TTS_SPEED', 5))  # 语速（0-15）
+    BAIDU_TTS_VOLUME = int(os.getenv('BAIDU_TTS_VOLUME', 5))  # 音量（0-15）
+
+    # 系统行为配置
+    DEBUG = os.getenv('FLASK_ENV', 'production') == 'development'  # 开发模式开关
+    MAX_COMMENT_HISTORY = 1000  # 最大评论历史缓存数
+    AI_REPLY_TIMEOUT = 10  # AI回复超时时间（秒）
+    COMMENT_FETCH_INTERVAL = 5  # 默认评论采集间隔（秒）
+
+    # 日志配置
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-    
-    # 文件存储配置
-    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
-    MAX_AUDIO_FILES = int(os.getenv('MAX_AUDIO_FILES', '100'))
-    
-    # 备份配置
-    BACKUP_DIR = os.getenv('BACKUP_DIR', 'backups')
-    BACKUP_FREQUENCY = os.getenv('BACKUP_FREQUENCY', 'daily')  # daily, weekly, monthly
-    
-    # 邮箱配置（用于通知）
-    MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.example.com')
-    MAIL_PORT = int(os.getenv('MAIL_PORT', '587'))
-    MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
-    MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'your_email@example.com')
-    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'your_email_password')
-    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@example.com')
-    
-    # Redis配置（用于缓存和消息队列）
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    
-    # Celery配置（用于异步任务）
-    CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-    CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
-    
-    # 跨域配置
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '').split(',') or ['*']
-    
-    # 自定义配置
-    APP_NAME = os.getenv('APP_NAME', '抖音直播间AI助手')
-    APP_VERSION = os.getenv('APP_VERSION', '1.0.0')
-    COMPANY_NAME = os.getenv('COMPANY_NAME', 'AI科技有限公司')
-    
-    # 主题配置
-    THEME_COLOR = os.getenv('THEME_COLOR', '#8a2be2')
-    SECONDARY_COLOR = os.getenv('SECONDARY_COLOR', '#00c3ff')
-    
-    @staticmethod
-    def init_app(app):
-        # 创建必要的目录
-        for directory in [Config.UPLOAD_FOLDER, Config.BACKUP_DIR]:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+    LOG_FILE = os.getenv('LOG_FILE', 'app.log')
+
 
 class DevelopmentConfig(Config):
+    """开发环境配置（继承基础配置并覆盖）"""
     DEBUG = True
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = True  # 打印SQL语句，便于调试
     LOG_LEVEL = 'DEBUG'
 
-class TestingConfig(Config):
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_ENABLED = False
 
 class ProductionConfig(Config):
+    """生产环境配置"""
     DEBUG = False
-    LOG_LEVEL = 'WARNING'
+    # 生产环境强制要求设置密钥
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    if not SECRET_KEY:
+        raise ValueError("生产环境必须设置SECRET_KEY环境变量")
+    LOG_LEVEL = 'WARNING'  # 生产环境减少日志输出
 
+
+# 配置映射，便于根据环境变量切换配置
 config = {
     'development': DevelopmentConfig,
-    'testing': TestingConfig,
     'production': ProductionConfig,
-    'default': DevelopmentConfig
+    'default': ProductionConfig
 }
+
+# 根据环境变量选择配置
+active_config = config[os.getenv('FLASK_ENV', 'default')]

@@ -1,6 +1,4 @@
 {% extends "base.html" %}
-{% set active_page = "dashboard" %}
-
 {% block content %}
 <div class="dashboard">
     <div class="header">
@@ -15,6 +13,7 @@
         </div>
     </div>
 
+    <!-- 数据统计面板 -->
     <div class="stats">
         <div class="stat-card">
             <div class="icon bg-blue">
@@ -57,11 +56,12 @@
         </div>
     </div>
 
+    <!-- 直播间主体区域 -->
     <div class="live-container">
+        <!-- 实时评论区 -->
         <div class="live-comments">
             <h2><i class="fas fa-comment-dots"></i> 实时评论</h2>
             <div class="comments-list" id="comments-list">
-                <!-- 评论会动态添加到这里 -->
                 <div class="empty-state">
                     <i class="fas fa-comment-slash"></i>
                     <p>直播间未启动，暂无评论</p>
@@ -69,8 +69,10 @@
             </div>
         </div>
         
+        <!-- 控制选项区 -->
         <div class="live-controls">
             <h2><i class="fas fa-sliders-h"></i> 控制选项</h2>
+            
             <div class="control-group">
                 <label><i class="fas fa-volume-up"></i> 语音音量</label>
                 <input type="range" min="0" max="100" value="80" id="volume-control">
@@ -103,6 +105,7 @@
                 </button>
             </div>
             
+            <!-- AI回复预览 -->
             <div class="ai-response-preview">
                 <h3><i class="fas fa-robot"></i> 最新AI回复</h3>
                 <div class="preview-content" id="ai-preview">

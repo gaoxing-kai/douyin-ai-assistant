@@ -1,6 +1,4 @@
 {% extends "base.html" %}
-{% set active_page = "users" %}
-
 {% block content %}
 <div class="users">
     <div class="header">
@@ -9,8 +7,8 @@
             <i class="fas fa-plus"></i> 添加用户
         </button>
     </div>
-    
-    <div class="user-list">
+
+    <div class="table-container">
         <table>
             <thead>
                 <tr>
@@ -34,7 +32,7 @@
                         <span class="badge badge-secondary">否</span>
                         {% endif %}
                     </td>
-                    <td>2023-11-15</td>
+                    <td>{{ user.created_at | datetimeformat('%Y-%m-%d') }}</td>
                     <td><span class="badge badge-success">活跃</span></td>
                     <td class="actions">
                         <button class="btn btn-sm btn-info edit-user" data-id="{{ user.id }}">
@@ -74,14 +72,6 @@
                 <div class="form-group">
                     <label>确认密码</label>
                     <input type="password" id="confirm-password" required>
-                </div>
-                <div class="form-group">
-                    <label>分配卡密</label>
-                    <select id="new-user-key">
-                        {% for key in keys if not key.is_used %}
-                        <option value="{{ key.key }}">{{ key.key }}</option>
-                        {% endfor %}
-                    </select>
                 </div>
                 <div class="form-group">
                     <label>
