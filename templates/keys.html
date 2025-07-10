@@ -6,14 +6,14 @@
         <div class="actions">
             <form method="post" id="generate-keys">
                 <input type="number" name="count" min="1" max="100" value="5" 
-                       placeholder="生成数量">
+                       placeholder="生成数量" class="form-control" style="display: inline-block; width: 100px; margin-right: 10px;">
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-plus-circle"></i> 生成卡密
                 </button>
             </form>
         </div>
     </div>
-
+    
     <!-- 新生成的卡密 -->
     {% if new_keys %}
     <div class="new-keys">
@@ -33,7 +33,7 @@
         </div>
     </div>
     {% endif %}
-
+    
     <!-- 所有卡密列表 -->
     <div class="table-container">
         <h3><i class="fas fa-list"></i> 所有卡密</h3>

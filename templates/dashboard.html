@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="dashboard">
+    <!-- 页面头部与操作按钮 -->
     <div class="header">
         <h1><i class="fas fa-broadcast-tower"></i> 直播间控制面板</h1>
         <div class="actions">
@@ -12,8 +13,8 @@
             </button>
         </div>
     </div>
-
-    <!-- 数据统计面板 -->
+    
+    <!-- 数据统计卡片 -->
     <div class="stats">
         <div class="stat-card">
             <div class="icon bg-blue">
@@ -55,7 +56,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- 直播间主体区域 -->
     <div class="live-container">
         <!-- 实时评论区 -->
@@ -105,7 +106,7 @@
                 </button>
             </div>
             
-            <!-- AI回复预览 -->
+            <!-- AI回复预览区 -->
             <div class="ai-response-preview">
                 <h3><i class="fas fa-robot"></i> 最新AI回复</h3>
                 <div class="preview-content" id="ai-preview">
@@ -115,4 +116,247 @@
         </div>
     </div>
 </div>
+
+<!-- 音频播放隐藏元素（用于语音播报） -->
+<audio id="audio-player" style="display: none;"></audio>
+
+<script>
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化Socket.IO连接
+    const socket = io();
+    
+    // 全局状态管理
+    const state = {
+        commentCount: 0,
+        replyCount: 0,
+        voiceCount: 0,
+        viewerCount: 0,
+        audioQueue: [],       // 语音播放队列
+        isPlaying: false,     // 是否正在播放语音
+        commentFilter: 'all'  // 评论过滤条件
+    };
+    
+    // 1. 直播间控制：启动/停止
+    document.getElementById('start-live').addEventListener('click', function() {
+        fetch('/live/start')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    this.disabled = true;
+                    document.getElementById('stop-live').disabled = false;
+                    document.getElementById('comments-list').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-sync fa-spin"></i>
+                            <p>正在连接直播间，请稍候...</p>
+                        </div>
+                    `;
+                    showToast('直播间已启动');
+                }
+            });
+    });
+    
+    document.getElementById('stop-live').addEventListener('click', function() {
+        fetch('/live/stop')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    this.disabled = true;
+                    document.getElementById('start-live').disabled = false;
+                    document.getElementById('comments-list').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>直播间已停止</p>
+                        </div>
+                    `;
+                    showToast('直播间已停止');
+                }
+            });
+    });
+    
+    // 2. 语音测试与音量控制
+    document.getElementById('test-voice').addEventListener('click', function() {
+        const testText = "欢迎使用抖音直播间AI助手，当前系统运行正常。";
+        playAudio(testText);
+    });
+    
+    document.getElementById('volume-control').addEventListener('input', function() {
+        const volume = this.value / 100;
+        document.getElementById('audio-player').volume = volume;
+    });
+    
+    // 3. 评论过滤与统计重置
+    document.getElementById('comment-filter').addEventListener('change', function() {
+        state.commentFilter = this.value;
+        filterComments();
+    });
+    
+    document.getElementById('reset-stats').addEventListener('click', function() {
+        state.commentCount = 0;
+        state.replyCount = 0;
+        state.voiceCount = 0;
+        state.viewerCount = 0;
+        updateStats();
+        showToast('统计数据已重置');
+    });
+    
+    // 4. Socket.IO事件监听
+    // 接收新评论
+    socket.on('new_comment', function(comment) {
+        state.commentCount++;
+        // 模拟观众数波动（5-50人）
+        state.viewerCount = Math.max(5, Math.min(50, state.viewerCount + Math.floor(Math.random() * 3) - 1));
+        updateStats();
+        
+        // 添加评论到页面
+        addCommentToDOM(comment, false);
+        // 触发AI分析
+        socket.emit('analyze_comment', comment);
+    });
+    
+    // 接收AI回复
+    socket.on('ai_reply', function(reply) {
+        if (reply.error) {
+            showToast(reply.error, 'error');
+            return;
+        }
+        
+        state.replyCount++;
+        state.voiceCount++;
+        updateStats();
+        
+        // 添加AI回复到页面
+        addCommentToDOM(reply, true);
+        // 更新预览区
+        document.getElementById('ai-preview').innerHTML = `<p>${reply.content}</p>`;
+        // 播放语音
+        if (reply.audio_url) {
+            playAudio(reply.content, reply.audio_url);
+        } else if (reply.text_fallback) {
+            showToast('语音合成失败，已显示文字回复', 'warning');
+        }
+    });
+    
+    // 系统消息
+    socket.on('system_msg', function(msg) {
+        showToast(msg.msg, msg.type);
+    });
+    
+    // 5. 辅助函数
+    // 添加评论到DOM
+    function addCommentToDOM(data, isAI) {
+        const list = document.getElementById('comments-list');
+        // 移除空状态提示
+        const emptyState = list.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+        
+        // 创建评论元素
+        const div = document.createElement('div');
+        div.className = isAI ? 'comment ai-response' : 'comment';
+        div.setAttribute('data-answered', isAI);
+        div.innerHTML = `
+            <div class="header">
+                <span class="user">${data.user}</span>
+                <span class="time">${data.timestamp}</span>
+            </div>
+            <div class="content">${data.content}</div>
+        `;
+        
+        // 添加到列表顶部（最新评论在前）
+        list.insertBefore(div, list.firstChild);
+        
+        // 应用过滤条件
+        filterComments();
+    }
+    
+    // 评论过滤
+    function filterComments() {
+        const comments = document.querySelectorAll('.comment');
+        comments.forEach(comment => {
+            const answered = comment.getAttribute('data-answered') === 'true';
+            switch(state.commentFilter) {
+                case 'all':
+                    comment.style.display = 'block';
+                    break;
+                case 'answered':
+                    comment.style.display = answered ? 'block' : 'none';
+                    break;
+                case 'unanswered':
+                    comment.style.display = !answered ? 'block' : 'none';
+                    break;
+            }
+        });
+    }
+    
+    // 播放语音（支持队列）
+    function playAudio(text, audioUrl) {
+        // 添加到播放队列
+        state.audioQueue.push({ text, audioUrl });
+        // 若未在播放，启动播放
+        if (!state.isPlaying) {
+            playNextInQueue();
+        }
+    }
+    
+    // 播放队列中的下一个音频
+    function playNextInQueue() {
+        if (state.audioQueue.length === 0) {
+            state.isPlaying = false;
+            return;
+        }
+        
+        state.isPlaying = true;
+        const { audioUrl } = state.audioQueue.shift();
+        const audio = document.getElementById('audio-player');
+        
+        audio.src = audioUrl;
+        audio.play().then(() => {
+            // 播放结束后继续下一个
+            audio.onended = playNextInQueue;
+        }).catch(err => {
+            console.error('音频播放失败:', err);
+            showToast('语音播放失败', 'error');
+            playNextInQueue(); // 继续播放下一个
+        });
+    }
+    
+    // 更新统计数据
+    function updateStats() {
+        document.getElementById('comment-count').textContent = state.commentCount;
+        document.getElementById('reply-count').textContent = state.replyCount;
+        document.getElementById('voice-count').textContent = state.voiceCount;
+        document.getElementById('viewer-count').textContent = state.viewerCount;
+    }
+    
+    // 显示提示消息
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.padding = '10px 20px';
+        toast.style.borderRadius = '4px';
+        toast.style.color = 'white';
+        toast.style.zIndex = '1000';
+        toast.style.animation = 'fadeIn 0.3s, fadeOut 0.3s 2.7s';
+        
+        // 根据类型设置背景色
+        if (type === 'error') {
+            toast.style.backgroundColor = '#ff3860';
+        } else if (type === 'warning') {
+            toast.style.backgroundColor = '#ffdd57';
+            toast.style.color = '#333';
+        } else {
+            toast.style.backgroundColor = '#23d160';
+        }
+        
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        // 3秒后移除
+        setTimeout(() => toast.remove(), 3000);
+    }
+});
+</script>
 {% endblock %}

@@ -1,8 +1,6 @@
 import os
 import time
 import uuid
-import requests
-import base64
 import threading
 from datetime import datetime
 from flask import (
@@ -21,7 +19,7 @@ app.config.from_object(active_config)
 
 # 初始化扩展
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)  # 数据库迁移工具
+migrate = Migrate(app, db)
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*",
@@ -143,6 +141,8 @@ def start_comment_thread(user_id):
 # 第三方服务集成
 # ------------------------------
 def deepseek_analyze(comment, prompt, ai_mode):
+    import requests
+    
     retry_count = 0
     max_retry = 2
     while retry_count <= max_retry:
@@ -207,6 +207,7 @@ def baidu_tts(text, voice_style, speed=5, volume=5):
         )
         
         if not isinstance(result, dict):
+            import base64
             return f"data:audio/mp3;base64,{base64.b64encode(result).decode('utf-8')}"
         else:
             log(f"百度TTS错误: {result}", "error")
@@ -546,7 +547,7 @@ def internal_server_error(e):
     return render_template('errors/500.html'), 500
 
 # ------------------------------
-# 应用初始化（替换before_first_request）
+# 应用初始化
 # ------------------------------
 def initialize_app():
     """应用启动时初始化（仅执行一次）"""
